@@ -1,0 +1,3 @@
+/Users/ryedida/Desktop/pysh/pysh/build/CMakeFiles/rebuild_cache.dir
+/Users/ryedida/Desktop/pysh/pysh/build/CMakeFiles/edit_cache.dir
+/Users/ryedida/Desktop/pysh/pysh/build/CMakeFiles/pysh.dir
