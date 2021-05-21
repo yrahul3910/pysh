@@ -48,6 +48,11 @@ std::string process_line(std::string& line)
 
                 std::string formatter = line.substr(k, i - 1 - k);
                 // Apply formatter
+                // If "str", do nothing.
+                if (formatter == "str")
+                    ;
+
+                // TODO: Keep track of tabs and substitute \n with \n followed by tabs.
             }
 
         }

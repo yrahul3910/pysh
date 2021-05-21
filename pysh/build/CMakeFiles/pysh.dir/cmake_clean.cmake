@@ -1,6 +1,5 @@
 file(REMOVE_RECURSE
   "CMakeFiles/pysh.dir/transpile.cpp.o"
-  "CMakeFiles/pysh.dir/transpile.cpp.o.d"
   "pysh"
   "pysh.pdb"
 )

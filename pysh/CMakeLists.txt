@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)  # CMake version check
 project(pysh)               # Create project "simple_example"
-set(CMAKE_CXX_STANDARD 17)            # Enable c++14 standard
+set(CMAKE_CXX_STANDARD 20)            # Enable c++20 standard
 
 # Add main file of project root directory as source file
 set(SOURCE_FILES transpile.cpp)

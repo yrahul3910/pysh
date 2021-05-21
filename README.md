@@ -46,11 +46,10 @@ In this code, we use the double bracket syntax to use a Python variable in a she
 
 In this example, we concatenate the output of several files produced by slurm jobs into a list of strings.
 
-    lines = sh```
+    lines = list.str```
     for file in slurm*.out
     do
         cat $file
     done
     ```
 
-The `sh` formatter returns a list of strings, each string being a line in the output.
