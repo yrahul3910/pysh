@@ -7,6 +7,8 @@ type_formatter::type_formatter(const std::string& fmt) {
 /**
  * Returns Python code that checks whether the string
  * can be safely casted to the desired type.
+ * 
+ * TODO: Check indent level
  */
 std::string type_formatter::get_safe_formatter() {
     std::string check_cast_code = "try:\n\t"
