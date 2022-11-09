@@ -54,10 +54,7 @@ std::string process_line(std::string& line)
                         break;
                 }
 
-                std::cout << "k: " << k << std::endl;
-
                 std::string format = line.substr(k + 1, cmd_idx[i] - k - 1);
-                std::cout << "format = " << format << std::endl;
 
                 // Apply formatter
                 // If "str", do nothing.
