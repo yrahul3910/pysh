@@ -1,3 +1,3 @@
-filename = './data/lines.txt'
-n_lines = int`wc -l {filename}`
+filename = f'./data/lines.txt'
+n_lines = int(`wc -l {filename}`.split()[0])
 print(n_lines, 'lines in file')

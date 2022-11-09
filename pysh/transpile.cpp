@@ -6,7 +6,9 @@
 #include <memory>
 #include <fstream>
 #include <cstdlib>
+#include <stdlib.h>
 #include <iostream>
+#include <filesystem>
 #include "formatter.h"
 
 /** Process a single line.
@@ -42,18 +44,20 @@ std::string process_line(std::string& line)
         for (size_t i{}, j{1}; i < cmd_idx.size(); i += 2, j += 2) {
             std::string substr = line.substr(cmd_idx[i] + 1, cmd_idx[j] - cmd_idx[i] - 1);
 
-            generated << "_ = subprocess.run(f'" << substr << "', capture_output=True)";
+            generated << "_ = subprocess.run(f'" << substr << "'.split(), capture_output=True).stdout.decode('utf-8').strip()\n";
 
             // Check for formatters
-            if (i > 0 && (std::isalnum(line[i - 1]) || line[i - 1] == '_')) {
+            if (cmd_idx[i] > 0 && (std::isalnum(line[cmd_idx[i] - 1]) || line[cmd_idx[i] - 1] == '_')) {
                 size_t k;
-                for (k = line[i] - 2; k >= 0; --k) {
+                for (k = cmd_idx[i] - 2; k >= 0; --k) {
                     if (!std::isalnum(line[k]) && line[k] != '_')
                         break;
                 }
 
-                std::string format = line.substr(line[k] + 1, line[i] - line[k] - 1);
-                std::cout << format << std::endl;
+                std::cout << "k: " << k << std::endl;
+
+                std::string format = line.substr(k + 1, cmd_idx[i] - k - 1);
+                std::cout << "format = " << format << std::endl;
 
                 // Apply formatter
                 // If "str", do nothing.
@@ -62,6 +66,9 @@ std::string process_line(std::string& line)
                     generated << formatter->format();
                 }
             }
+
+            // Now, replace the part in quotes with our variable
+            generated << line.replace(cmd_idx[i], cmd_idx[j] - cmd_idx[i] + 1, "_");
         }
     } else {
         generated << line;
@@ -85,6 +92,15 @@ int main(int argc, char* argv[])
     }
 
     fout.close();
+
+    // Run the code
+    const char* path = std::getenv("PATH");
+    std::filesystem::path cur_path = std::filesystem::current_path();
+    std::string new_path = std::string(path) + ":" + cur_path.string();
+
+    if (setenv("PATH", new_path.c_str(), 1) != 0)
+        throw "Failed to set PATH";
+
     std::system("python out.py");
 
     return 0;
