@@ -2,6 +2,7 @@
 #define FORMATTER_H
 
 #include <string>
+#include <memory>
 
 /**
  * The base class for formatters. This is an abstract class
@@ -17,18 +18,18 @@ class basic_formatter
 {
 public:
     basic_formatter() = default;
-    virtual std::string format() = 0; 
+    virtual ~basic_formatter() = default;
+    virtual std::string format() const = 0; 
 };
 
 class type_formatter : public basic_formatter
 {
     std::string fmt;
-    std::string get_safe_formatter();
+    std::string get_safe_formatter() const;
 
 public:
-    type_formatter(const std::string&);
-    type_formatter() = delete;
-    virtual std::string format();
+    explicit type_formatter(const std::string);
+    std::string format() const override;
 };
 
 

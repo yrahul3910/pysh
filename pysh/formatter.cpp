@@ -1,8 +1,8 @@
 #include "formatter.h"
 
-type_formatter::type_formatter(const std::string& fmt) {
-    this->fmt = fmt;
-}
+type_formatter::type_formatter(const std::string fmt)
+    : fmt{std::move(fmt)}
+{}
 
 /**
  * Returns Python code that checks whether the string
@@ -10,7 +10,7 @@ type_formatter::type_formatter(const std::string& fmt) {
  * 
  * TODO: Check indent level
  */
-std::string type_formatter::get_safe_formatter() {
+std::string type_formatter::get_safe_formatter() const {
     std::string check_cast_code = "try:\n\t"
         "_ = " + fmt + "(_)\nexcept ValueError:\n\t"
         "raise";
@@ -18,7 +18,7 @@ std::string type_formatter::get_safe_formatter() {
     return check_cast_code;
 }
 
-std::string type_formatter::format()
+std::string type_formatter::format() const
 {
     if (fmt == "int" ||
         fmt == "float")

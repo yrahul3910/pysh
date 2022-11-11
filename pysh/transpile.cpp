@@ -3,11 +3,10 @@
 #include <vector>
 #include <sstream>
 #include <cctype>
-#include <memory>
 #include <fstream>
 #include <cstdlib>
-#include <stdlib.h>
 #include <iostream>
+#include <exception>
 #include <filesystem>
 #include "formatter.h"
 
@@ -16,10 +15,8 @@
  * @param line - The line to process
  * @return The processed Python code
  */
-std::string process_line(std::string& line)
+std::ostream& process_line(std::string& line, std::ostream& out)
 {
-    std::ostringstream generated;
-
     // Parse template args in the string.
     if (line.find("`") != std::string::npos) {
         // Find all indices.
@@ -38,17 +35,17 @@ std::string process_line(std::string& line)
 
         // Ensure we have an even number of indices
         if (cmd_idx.size() % 2 == 1)
-            throw "Invalid number of template quotes";
+            throw std::invalid_argument("Invalid number of backticks in line: " + line);
 
         // Begin substitution using formatters.
         for (size_t i{}, j{1}; i < cmd_idx.size(); i += 2, j += 2) {
             std::string substr = line.substr(cmd_idx[i] + 1, cmd_idx[j] - cmd_idx[i] - 1);
 
-            generated << "_ = subprocess.run(f'" << substr << "'.split(), capture_output=True).stdout.decode('utf-8').strip()\n";
+            out << "_ = subprocess.run(f'" << substr << "'.split(), capture_output=True).stdout.decode('utf-8').strip()\n";
 
             // Check for formatters
             if (cmd_idx[i] > 0 && (std::isalnum(line[cmd_idx[i] - 1]) || line[cmd_idx[i] - 1] == '_')) {
-                size_t k;
+                int k;
                 for (k = cmd_idx[i] - 2; k >= 0; --k) {
                     if (!std::isalnum(line[k]) && line[k] != '_')
                         break;
@@ -59,23 +56,28 @@ std::string process_line(std::string& line)
                 // Apply formatter
                 // If "str", do nothing.
                 if (format != "str") {
-                    std::unique_ptr<type_formatter> formatter = std::make_unique<type_formatter>(format);
-                    generated << formatter->format();
+                    type_formatter formatter{format};
+                    out << formatter.format();
                 }
             }
 
             // Now, replace the part in quotes with our variable
-            generated << line.replace(cmd_idx[i], cmd_idx[j] - cmd_idx[i] + 1, "_");
+            out << line.replace(cmd_idx[i], cmd_idx[j] - cmd_idx[i] + 1, "_") << "\n";
         }
     } else {
-        generated << line;
+        out << line << "\n";
     }
 
-    return generated.str();
+    return out;
 }
 
 int main(int argc, char* argv[])
 {
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " <file>\n";
+        return 1;
+    }
+
     // TODO: Change this to a filename input
     std::ifstream fin(argv[1]);
     std::ofstream fout("out.py");
@@ -85,9 +87,10 @@ int main(int argc, char* argv[])
     std::string line;
 
     while (std::getline(fin, line)) {
-        fout << process_line(line) << std::endl;
+        process_line(line, fout);
     }
 
+    fout.flush();
     fout.close();
 
     // Run the code
@@ -96,7 +99,7 @@ int main(int argc, char* argv[])
     std::string new_path = std::string(path) + ":" + cur_path.string();
 
     if (setenv("PATH", new_path.c_str(), 1) != 0)
-        throw "Failed to set PATH";
+        throw std::runtime_error("Failed to set PATH");
 
     std::system("python out.py");
 
