@@ -10,6 +10,20 @@
 #include <filesystem>
 #include "formatter.h"
 
+
+// Replace all occurrences of a substring within a string
+// from https://stackoverflow.com/a/28766792/2713263
+std::string string_replace( const std::string & s, const std::string & findS, const std::string & replaceS )
+{
+    std::string result = s;
+    auto pos = s.find( findS );
+    if ( pos == std::string::npos ) {
+        return result;
+    }
+    result.replace( pos, findS.length(), replaceS );
+    return string_replace( result, findS, replaceS );
+}
+
 /** Process a single line.
  *
  * @param line - The line to process
@@ -18,16 +32,24 @@
 std::ostream& process_line(std::string& line, std::ostream& out)
 {
     // Parse template args in the string.
-    if (line.find("`") != std::string::npos) {
+    if (line.find('`') != std::string::npos) {
         // Find all indices.
         std::vector<size_t> cmd_idx;
         size_t cur_tick_idx = 0;
         size_t next_tick_idx;
 
         // Find all backticks
-        while ((next_tick_idx = line.find("`", cur_tick_idx)) != std::string::npos) {
+        while ((next_tick_idx = line.find('`', cur_tick_idx)) != std::string::npos) {
             // First, check that it is not escaped.
-            if (next_tick_idx <= 0 || line[next_tick_idx - 1] != '\\')
+            static std::vector<std::pair<std::string, std::string>> patterns = {
+                    { "\\\\" , "\\" },
+                    { "\\`", "`" },
+            };
+            for ( const auto & p : patterns ) {
+                line = string_replace( line, p.first, p.second );
+            }
+
+            if (next_tick_idx > 0 && line[next_tick_idx - 1] != '\\')
                 cmd_idx.push_back(next_tick_idx);
 
             cur_tick_idx = next_tick_idx + 1;
@@ -47,11 +69,16 @@ std::ostream& process_line(std::string& line, std::ostream& out)
             if (cmd_idx[i] > 0 && (std::isalnum(line[cmd_idx[i] - 1]) || line[cmd_idx[i] - 1] == '_')) {
                 int k;
                 for (k = cmd_idx[i] - 2; k >= 0; --k) {
-                    if (!std::isalnum(line[k]) && line[k] != '_')
+                    if (!std::isalnum(line[k]) && line[k] != '_' && line[k] != '.')
                         break;
                 }
 
                 std::string format = line.substr(k + 1, cmd_idx[i] - k - 1);
+
+                // Now that we have the format, remove it from the line.
+                line.erase(k + 1, cmd_idx[i] - k - 1);
+                cmd_idx[i] -= format.size();
+                cmd_idx[j] -= format.size();
 
                 // Apply formatter
                 // If "str", do nothing.

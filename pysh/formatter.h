@@ -19,17 +19,17 @@ class basic_formatter
 public:
     basic_formatter() = default;
     virtual ~basic_formatter() = default;
-    virtual std::string format() const = 0; 
+    [[nodiscard]] virtual std::string format() const = 0;
 };
 
 class type_formatter : public basic_formatter
 {
     std::string fmt;
-    std::string get_safe_formatter() const;
+    [[nodiscard]] std::string get_safe_formatter() const;
 
 public:
-    explicit type_formatter(const std::string);
-    std::string format() const override;
+    explicit type_formatter(std::string);
+    [[nodiscard]] std::string format() const override;
 };
 
 

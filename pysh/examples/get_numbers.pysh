@@ -1,0 +1,3 @@
+filename = './data/numbers.txt'
+numbers = list.int`cat {filename}`
+print(numbers)

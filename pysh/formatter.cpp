@@ -1,6 +1,6 @@
 #include "formatter.h"
 
-type_formatter::type_formatter(const std::string fmt)
+type_formatter::type_formatter(std::string fmt)
     : fmt{std::move(fmt)}
 {}
 
@@ -13,7 +13,7 @@ type_formatter::type_formatter(const std::string fmt)
 std::string type_formatter::get_safe_formatter() const {
     std::string check_cast_code = "try:\n\t"
         "_ = " + fmt + "(_)\nexcept ValueError:\n\t"
-        "raise";
+        "raise\n";
 
     return check_cast_code;
 }
@@ -25,7 +25,7 @@ std::string type_formatter::format() const
         return get_safe_formatter();
 
     if (fmt == "list")
-        return "_ = _.split('\\n')\n";
+        return "_ = _.split('\\n')\n" + get_safe_formatter();
 
     if (fmt.starts_with("list.")) {
         std::string list_type = fmt.substr(5);
