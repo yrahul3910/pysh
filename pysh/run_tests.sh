@@ -13,4 +13,5 @@ mv out.py test_all.py
 
 # Run tests
 echo "(3/3) Running tests..."
+python3 -m pip install pytest
 pytest
