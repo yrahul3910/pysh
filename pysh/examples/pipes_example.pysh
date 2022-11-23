@@ -1,0 +1,3 @@
+filename = './data/numbers.txt'
+_sum = int`cat {filename} | paste -sd+ - | bc`
+print(_sum)

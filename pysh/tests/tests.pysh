@@ -1,0 +1,16 @@
+def test_count_lines_works():
+    filename = f'./data/lines.txt'
+    n_lines = int(`wc -l {filename}`.split()[0])
+    assert n_lines == 4
+
+
+def test_sum_numbers_works():
+    filename = './data/numbers.txt'
+    numbers = list.int`cat {filename}`
+    assert sum(numbers) == 15
+
+
+def test_pipes_work():
+    filename = './data/numbers.txt'
+    _sum = int`cat {filename} | paste -sd+ - | bc`
+    assert _sum == 15

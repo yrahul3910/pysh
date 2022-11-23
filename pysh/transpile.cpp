@@ -8,6 +8,7 @@
 #include <iostream>
 #include <exception>
 #include <filesystem>
+#include <regex>
 #include "formatter.h"
 
 
@@ -63,7 +64,7 @@ std::ostream& process_line(std::string& line, std::ostream& out)
         for (size_t i{}, j{1}; i < cmd_idx.size(); i += 2, j += 2) {
             std::string substr = line.substr(cmd_idx[i] + 1, cmd_idx[j] - cmd_idx[i] - 1);
 
-            out << "_ = subprocess.run(f'" << substr << "'.split(), capture_output=True).stdout.decode('utf-8').strip()\n";
+            out << "_ = subprocess.Popen(f'" << substr << "', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].decode('utf-8')\n";
 
             // Check for formatters
             if (cmd_idx[i] > 0 && (std::isalnum(line[cmd_idx[i] - 1]) || line[cmd_idx[i] - 1] == '_')) {
@@ -83,7 +84,17 @@ std::ostream& process_line(std::string& line, std::ostream& out)
                 // Apply formatter
                 // If "str", do nothing.
                 if (format != "str") {
+                    // Get the formatted string, and then add in the indents.
+                    std::smatch match;
+                    std::regex regex("^\\s+");
+
                     type_formatter formatter{format};
+                    std::string formatted = formatter.format();
+
+                    // Add in the indents.
+                    while (std::regex_search(formatted, match, regex)) {
+                        formatted.replace(match.position(), match.length(), "\n" + match[0].str());
+                    }
                     out << formatter.format();
                 }
             }
