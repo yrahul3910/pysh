@@ -8,7 +8,6 @@
 #include <iostream>
 #include <exception>
 #include <filesystem>
-#include <regex>
 #include "formatter.h"
 
 
@@ -32,6 +31,33 @@ std::string string_replace( const std::string & s, const std::string & findS, co
  */
 std::ostream& process_line(std::string& line, std::ostream& out)
 {
+    static int indent_level = 0;
+    bool spaces_to_indent = true;
+
+    std::smatch match;
+    std::regex regex("^\\s+");
+
+    // Add in indents
+    if (std::regex_search(line, match, regex)) {
+        // Count the number of indents
+        int spaces = 0;
+        for (char c : match[0].str()) {
+            if (c == '\t') {
+                spaces_to_indent = false;
+                indent_level++;
+            }
+            else if (c == ' ')
+                spaces++;
+        }
+        indent_level = static_cast<int>(spaces / 4);
+
+        // Now replace the indents
+        line.replace(match.position(), match.length(), match[0].str());
+    } else {
+        indent_level = 0;
+    }
+    std::cout << line << std::endl;
+
     // Parse template args in the string.
     if (line.find('`') != std::string::npos) {
         // Find all indices.
@@ -64,6 +90,13 @@ std::ostream& process_line(std::string& line, std::ostream& out)
         for (size_t i{}, j{1}; i < cmd_idx.size(); i += 2, j += 2) {
             std::string substr = line.substr(cmd_idx[i] + 1, cmd_idx[j] - cmd_idx[i] - 1);
 
+            // Add in indents
+            if (spaces_to_indent)
+                out << std::string(indent_level * 4, ' ');
+            else
+                out << std::string(indent_level, '\t');
+
+            // Inject subprocess call
             out << "_ = subprocess.Popen(f'" << substr << "', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].decode('utf-8')\n";
 
             // Check for formatters
@@ -84,18 +117,17 @@ std::ostream& process_line(std::string& line, std::ostream& out)
                 // Apply formatter
                 // If "str", do nothing.
                 if (format != "str") {
-                    // Get the formatted string, and then add in the indents.
-                    std::smatch match;
-                    std::regex regex("^\\s+");
-
-                    type_formatter formatter{format};
+                    type_formatter formatter{format, indent_level, spaces_to_indent};
                     std::string formatted = formatter.format();
 
-                    // Add in the indents.
-                    while (std::regex_search(formatted, match, regex)) {
-                        formatted.replace(match.position(), match.length(), "\n" + match[0].str());
-                    }
-                    out << formatter.format();
+                    // Add indents
+                    if (spaces_to_indent)
+                        out << std::string(indent_level * 4, ' ');
+                    else
+                        out << std::string(indent_level, '\t');
+
+                    // Output formatted string
+                    out << formatted;
                 }
             }
 

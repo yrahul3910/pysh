@@ -1,2 +1,7 @@
 build/
+cmake-build-debug/
+.pytest_cache/
+__pycache__/
+test_all.py
+out.py
 .DS_Store

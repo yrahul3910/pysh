@@ -1,8 +1,18 @@
 #include "formatter.h"
 
-type_formatter::type_formatter(std::string fmt)
-    : fmt{std::move(fmt)}
+type_formatter::type_formatter(std::string fmt, int indent_level, bool spaces_to_indent)
+    : fmt{std::move(fmt)}, indent_level{indent_level}, spaces_to_indent{spaces_to_indent}
 {}
+
+std::string type_formatter::get_indent_string(bool additional=false) const {
+    std::string indent_string;
+    if (spaces_to_indent) {
+        indent_string = std::string((indent_level + additional) * 4, ' ');
+    } else {
+        indent_string = std::string(indent_level + additional, '\t');
+    }
+    return indent_string;
+}
 
 /**
  * Returns Python code that checks whether the string
@@ -11,8 +21,8 @@ type_formatter::type_formatter(std::string fmt)
  * TODO: Check indent level
  */
 std::string type_formatter::get_safe_formatter() const {
-    std::string check_cast_code = "try:\n\t"
-        "_ = " + fmt + "(_)\nexcept ValueError:\n\t"
+    std::string check_cast_code = "try:\n" + get_indent_string(true) +
+        "_ = " + fmt + "(_)\n" + get_indent_string() + "except ValueError:\n" + get_indent_string(true) +
         "raise\n";
 
     return check_cast_code;

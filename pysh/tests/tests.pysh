@@ -1,7 +1,7 @@
 def test_count_lines_works():
     filename = f'./data/lines.txt'
     n_lines = int(`wc -l {filename}`.split()[0])
-    assert n_lines == 4
+    assert n_lines == 3
 
 
 def test_sum_numbers_works():
