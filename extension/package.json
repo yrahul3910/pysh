@@ -1,0 +1,25 @@
+{
+  "name": "pysh-highlighting",
+  "displayName": "Pysh Syntax Highlighting",
+  "description": "Syntax highlighting for pysh",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.73.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "pysh",
+      "aliases": ["Pysh", "pysh"],
+      "extensions": [".pysh"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "pysh",
+      "scopeName": "source.pysh",
+      "path": "./syntaxes/pysh.tmLanguage"
+    }]
+  }
+}
