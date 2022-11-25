@@ -22,7 +22,7 @@
       "configuration": "./language-configuration.json"
     }],
     "grammars": [{
-      "language": "python",
+      "language": "pysh",
       "scopeName": "source.pysh",
       "injectTo": ["source.python"],
       "path": "./syntaxes/pysh.json"

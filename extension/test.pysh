@@ -2,3 +2,8 @@ import os
 
 filename = './data/lines.txt'
 lines = int`wc -l {filename} | awk '{print $1}'`
+
+if lines > 0:
+    print(f'File {filename} has {lines} lines')
+else:
+    print(f'File {filename} is empty')
