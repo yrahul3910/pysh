@@ -1,0 +1,4 @@
+import os
+
+filename = './data/lines.txt'
+lines = int`wc -l {filename} | awk '{print $1}'`

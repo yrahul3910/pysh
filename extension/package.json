@@ -12,14 +12,20 @@
   "contributes": {
     "languages": [{
       "id": "pysh",
-      "aliases": ["Pysh", "pysh"],
-      "extensions": [".pysh"],
+      "aliases": [
+        "Pysh",
+        "pysh"
+      ],
+      "extensions": [
+        ".pysh"
+      ],
       "configuration": "./language-configuration.json"
     }],
     "grammars": [{
-      "language": "pysh",
+      "language": "python",
       "scopeName": "source.pysh",
-      "path": "./syntaxes/pysh.tmLanguage"
+      "injectTo": ["source.python"],
+      "path": "./syntaxes/pysh.json"
     }]
   }
 }
