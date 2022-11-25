@@ -49,14 +49,15 @@ std::ostream& process_line(std::string& line, std::ostream& out)
             else if (c == ' ')
                 spaces++;
         }
-        indent_level = static_cast<int>(spaces / 4);
+
+        if (spaces_to_indent)
+            indent_level = static_cast<int>(spaces / 4);
 
         // Now replace the indents
         line.replace(match.position(), match.length(), match[0].str());
     } else {
         indent_level = 0;
     }
-    std::cout << line << std::endl;
 
     // Parse template args in the string.
     if (line.find('`') != std::string::npos) {
@@ -171,7 +172,7 @@ int main(int argc, char* argv[])
     if (setenv("PATH", new_path.c_str(), 1) != 0)
         throw std::runtime_error("Failed to set PATH");
 
-    std::system("python out.py");
+    std::system("python3 out.py");
 
     return 0;
 }
