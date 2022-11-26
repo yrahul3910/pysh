@@ -25,7 +25,7 @@
       "language": "pysh",
       "scopeName": "source.pysh",
       "injectTo": ["source.python"],
-      "path": "./syntaxes/pysh.json"
+      "path": "./syntaxes/pysh.tmLanguage"
     }]
   }
 }
