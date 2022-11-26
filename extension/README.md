@@ -4,7 +4,7 @@
 
 The official Python Shell (pysh) syntax highlighting for Visual Studio Code.
 
-![pysh-highlighting](./screenshot.png)
+![pysh-highlighting](https://github.com/yrahul3910/pysh/blob/master/extension/screenshot.png?raw=true)
 
 ## Requirements
 
