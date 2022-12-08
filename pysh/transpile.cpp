@@ -53,8 +53,9 @@ std::ostream& process_line(std::string& line, std::ostream& out)
         if (spaces_to_indent)
             indent_level = static_cast<int>(spaces / 4);
 
-        // Now replace the indents
-        line.replace(match.position(), match.length(), match[0].str());
+        // Now replace the indents with spaces
+        if (!spaces_to_indent)
+            line.replace(match.position(), match.length(), std::string(4 * indent_level, ' '));
     } else {
         indent_level = 0;
     }
@@ -149,11 +150,25 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    if (std::string(argv[1]) == "-v") {
+        std::cout << "pysh version 1.1" << std::endl;
+        return 0;
+    }
+
+    std::filesystem::path filename = argv[1];
+    if (!exists(filename)) {
+        std::cerr << argv[1] << " does not exist." << std::endl;
+        return 2;
+    }
+
     // TODO: Change this to a filename input
     std::ifstream fin(argv[1]);
     std::ofstream fout("out.py");
 
     fout << "import subprocess\n\n";
+    fout << "class list(list):"
+            "    def map(self, f):"
+            "        return list(map(f, self))\n\n";
 
     std::string line;
 

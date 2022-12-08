@@ -2,6 +2,7 @@
   "name": "pysh-highlighting",
   "displayName": "Pysh Syntax Highlighting",
   "description": "Syntax highlighting for pysh",
+  "publisher": "RahulYedida",
   "repository": "https://github.com/yrahul3910/pysh/",
   "version": "0.0.1",
   "engines": {
