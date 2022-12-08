@@ -33,18 +33,6 @@ cd build
 make
 ```
 
-## Examples
-
-There are several examples in the `examples/` directory. Here are a few:
-
-### Counting lines in a file
-
-```
-filename = './data/lines.txt'
-n_lines = int`wc -l {filename}`
-print(n_lines, 'lines in file')
-```
-
 ## Change Log
 
 ### v1.1
