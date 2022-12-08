@@ -45,6 +45,10 @@ n_lines = int`wc -l {filename}`
 print(n_lines, 'lines in file')
 ```
 
-## Future Goals
+## Change Log
 
-- [ ] Provide built-in commands as Python code
+### v1.1
+
+* Added the `-v` option for version.
+* Added the `map` extension for the `list` class.
+* Bug fixes

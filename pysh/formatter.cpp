@@ -4,12 +4,12 @@ type_formatter::type_formatter(std::string fmt, int indent_level, bool spaces_to
     : fmt{std::move(fmt)}, indent_level{indent_level}, spaces_to_indent{spaces_to_indent}
 {}
 
-std::string type_formatter::get_indent_string(bool additional=false) const {
+std::string type_formatter::get_indent_string(int additional=0) const {
     std::string indent_string;
     if (spaces_to_indent) {
-        indent_string = std::string((indent_level + additional) * 4, ' ');
+        indent_string = std::string(std::max(0, indent_level + additional) * 4, ' ');
     } else {
-        indent_string = std::string(indent_level + additional, '\t');
+        indent_string = std::string(std::max(0, indent_level + additional), '\t');
     }
     return indent_string;
 }
@@ -21,8 +21,8 @@ std::string type_formatter::get_indent_string(bool additional=false) const {
  * TODO: Check indent level
  */
 std::string type_formatter::get_safe_formatter() const {
-    std::string check_cast_code = "try:\n" + get_indent_string(true) +
-        "_ = " + fmt + "(_)\n" + get_indent_string() + "except ValueError:\n" + get_indent_string(true) +
+    std::string check_cast_code = get_indent_string() + "try:\n" + get_indent_string(1) +
+        "_ = " + fmt + "(_)\n" + get_indent_string() + "except ValueError:\n" + get_indent_string(1) +
         "raise\n";
 
     return check_cast_code;
