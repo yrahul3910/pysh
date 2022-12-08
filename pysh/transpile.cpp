@@ -166,8 +166,8 @@ int main(int argc, char* argv[])
     std::ofstream fout("out.py");
 
     fout << "import subprocess\n\n";
-    fout << "class list(list):"
-            "    def map(self, f):"
+    fout << "class list(list):\n"
+            "    def map(self, f):\n"
             "        return list(map(f, self))\n\n";
 
     std::string line;
