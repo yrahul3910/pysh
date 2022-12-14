@@ -26,12 +26,11 @@ class type_formatter : public basic_formatter
 {
     std::string fmt;
     int indent_level;
-    bool spaces_to_indent;
     [[nodiscard]] std::string get_indent_string(int) const;
     [[nodiscard]] std::string get_safe_formatter() const;
 
 public:
-    explicit type_formatter(std::string, int, bool);
+    explicit type_formatter(std::string, int);
     [[nodiscard]] std::string format() const override;
 };
 

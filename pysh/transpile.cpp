@@ -54,8 +54,10 @@ std::ostream& process_line(std::string& line, std::ostream& out)
             indent_level = static_cast<int>(spaces / 4);
 
         // Now replace the indents with spaces
-        if (!spaces_to_indent)
+        if (!spaces_to_indent) {
             line.replace(match.position(), match.length(), std::string(4 * indent_level, ' '));
+            spaces_to_indent = true;
+        }
     } else {
         indent_level = 0;
     }
@@ -93,10 +95,7 @@ std::ostream& process_line(std::string& line, std::ostream& out)
             std::string substr = line.substr(cmd_idx[i] + 1, cmd_idx[j] - cmd_idx[i] - 1);
 
             // Add in indents
-            if (spaces_to_indent)
-                out << std::string(indent_level * 4, ' ');
-            else
-                out << std::string(indent_level, '\t');
+            out << std::string(indent_level * 4, ' ');
 
             // Inject subprocess call
             out << "_ = subprocess.Popen(f'" << substr << "', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].decode('utf-8').rstrip()\n";
@@ -119,14 +118,11 @@ std::ostream& process_line(std::string& line, std::ostream& out)
                 // Apply formatter
                 // If "str", do nothing.
                 if (format != "str") {
-                    type_formatter formatter{format, indent_level, spaces_to_indent};
+                    type_formatter formatter{format, indent_level};
                     std::string formatted = formatter.format();
-
+                    std::cout << indent_level << std::endl;
                     // Add indents
-                    if (spaces_to_indent)
-                        out << std::string(indent_level * 4, ' ');
-                    else
-                        out << std::string(indent_level, '\t');
+                    out << std::string(indent_level * 4, ' ');
 
                     // Output formatted string
                     out << formatted;
