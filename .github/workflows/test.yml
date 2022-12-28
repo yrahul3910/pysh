@@ -19,6 +19,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    
+    - name: Install Boost
+      run: sudo apt install -y libboost-dev
 
     - name: Run tests
       run: cd pysh && ./run_tests.sh
