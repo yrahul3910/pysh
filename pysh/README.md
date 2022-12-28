@@ -35,6 +35,10 @@ make
 
 ## Change Log
 
+### v1.2
+
+* Added the `--transpile-only` flag.
+
 ### v1.1
 
 * Added the `-v` option for version.

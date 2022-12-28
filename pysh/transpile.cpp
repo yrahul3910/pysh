@@ -9,22 +9,10 @@
 #include <exception>
 #include <filesystem>
 #include <boost/program_options.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include "formatter.h"
 
  namespace po = boost::program_options;
-
-// Replace all occurrences of a substring within a string
-// from https://stackoverflow.com/a/28766792/2713263
-std::string string_replace( const std::string & s, const std::string & findS, const std::string & replaceS )
-{
-    std::string result = s;
-    auto pos = s.find( findS );
-    if ( pos == std::string::npos ) {
-        return result;
-    }
-    result.replace( pos, findS.length(), replaceS );
-    return string_replace( result, findS, replaceS );
-}
 
 /** Process a single line.
  *
@@ -79,7 +67,7 @@ std::ostream& process_line(std::string& line, std::ostream& out)
                     { "\\`", "`" },
             };
             for ( const auto & p : patterns ) {
-                line = string_replace( line, p.first, p.second );
+                boost::replace_all(line, p.first, p.second);
             }
 
             if (next_tick_idx > 0 && line[next_tick_idx - 1] != '\\')
@@ -166,7 +154,7 @@ int main(int argc, char* argv[])
     }
 
     if (vm.count("-v")) {
-        std::cout << "pysh version 1.1" << std::endl;
+        std::cout << "pysh version 1.2" << std::endl;
         return 0;
     }
 
