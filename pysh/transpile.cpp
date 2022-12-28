@@ -8,8 +8,10 @@
 #include <iostream>
 #include <exception>
 #include <filesystem>
+#include <boost/program_options.hpp>
 #include "formatter.h"
 
+ namespace po = boost::program_options;
 
 // Replace all occurrences of a substring within a string
 // from https://stackoverflow.com/a/28766792/2713263
@@ -146,7 +148,24 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    if (std::string(argv[1]) == "-v") {
+    // Declare the supported options.
+    po::options_description desc("Allowed options");
+    desc.add_options()
+        ("-h", "produce help message")
+        ("-v", "print version")
+        ("--transpile-only", "transpile-only mode")
+    ;
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("-h")) {
+        std::cout << desc << "\n";
+        return 0;
+    }
+
+    if (vm.count("-v")) {
         std::cout << "pysh version 1.1" << std::endl;
         return 0;
     }
@@ -175,15 +194,17 @@ int main(int argc, char* argv[])
     fout.flush();
     fout.close();
 
-    // Run the code
-    const char* path = std::getenv("PATH");
-    std::filesystem::path cur_path = std::filesystem::current_path();
-    std::string new_path = std::string(path) + ":" + cur_path.string();
+    if (!vm.count("--transpile-only")) {
+        // Run the code
+        const char *path = std::getenv("PATH");
+        std::filesystem::path cur_path = std::filesystem::current_path();
+        std::string new_path = std::string(path) + ":" + cur_path.string();
 
-    if (setenv("PATH", new_path.c_str(), 1) != 0)
-        throw std::runtime_error("Failed to set PATH");
+        if (setenv("PATH", new_path.c_str(), 1) != 0)
+            throw std::runtime_error("Failed to set PATH");
 
-    std::system("python3 out.py");
+        std::system("python3 out.py");
+    }
 
     return 0;
 }
