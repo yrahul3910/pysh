@@ -112,9 +112,6 @@ std::ostream& process_line(std::string& line, std::ostream& out)
                     type_formatter formatter{format, indent_level};
                     std::string formatted = formatter.format();
 
-                    // Add indents
-                    out << std::string(indent_level * 4, ' ');
-
                     // Output formatted string
                     out << formatted;
                 }

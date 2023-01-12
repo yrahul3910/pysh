@@ -32,11 +32,11 @@ std::string type_formatter::format() const
         return get_safe_formatter();
 
     if (fmt == "list")
-        return "_ = _.split('\\n')\n" + get_safe_formatter();
+        return get_indent_string() + "_ = _.split('\\n')\n" + get_safe_formatter();
 
     if (fmt.starts_with("list.")) {
         std::string list_type = fmt.substr(5);
-        return "_ = [" + list_type + "(x) for x in _.split('\\n')]\n";
+        return get_indent_string() + "_ = [" + list_type + "(x) for x in _.split('\\n')]\n";
     }
 
     throw std::invalid_argument("Formatter for type does not exist.");
