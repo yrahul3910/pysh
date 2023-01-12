@@ -18,7 +18,7 @@ std::string type_formatter::get_indent_string(int additional=0) const {
  * TODO: Check indent level
  */
 std::string type_formatter::get_safe_formatter() const {
-    std::string check_cast_code = "try:\n" + get_indent_string(1) +
+    std::string check_cast_code = get_indent_string() + "try:\n" + get_indent_string(1) +
         "_ = " + fmt + "(_)\n" + get_indent_string() + "except ValueError:\n" + get_indent_string(1) +
         "raise\n";
 

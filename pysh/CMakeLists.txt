@@ -19,7 +19,7 @@ set(SOURCE_FILES transpile.cpp formatter.cpp formatter.h)
 
 # Add executable target with source files listed in SOURCE_FILES variable
 add_executable(pysh ${SOURCE_FILES})
-target_link_libraries(pysh Boost::program_options)
+target_link_libraries(pysh ${Boost_LIBS} Boost::program_options)
 
 install(TARGETS pysh)
 

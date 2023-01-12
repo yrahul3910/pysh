@@ -8,6 +8,7 @@
 #include <iostream>
 #include <exception>
 #include <filesystem>
+#include <algorithm>
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include "formatter.h"
@@ -110,7 +111,7 @@ std::ostream& process_line(std::string& line, std::ostream& out)
                 if (format != "str") {
                     type_formatter formatter{format, indent_level};
                     std::string formatted = formatter.format();
-                    std::cout << indent_level << std::endl;
+
                     // Add indents
                     out << std::string(indent_level * 4, ' ');
 
@@ -139,21 +140,21 @@ int main(int argc, char* argv[])
     // Declare the supported options.
     po::options_description desc("Allowed options");
     desc.add_options()
-        ("-h", "produce help message")
-        ("-v", "print version")
-        ("--transpile-only", "transpile-only mode")
+        ("help,h", "produce help message")
+        ("version,v", "print version")
+        ("transpile,t", "transpile-only mode")
     ;
 
     po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
     po::notify(vm);
 
-    if (vm.count("-h")) {
+    if (vm.count("help")) {
         std::cout << desc << "\n";
         return 0;
     }
 
-    if (vm.count("-v")) {
+    if (vm.count("version")) {
         std::cout << "pysh version 1.2" << std::endl;
         return 0;
     }
@@ -182,7 +183,7 @@ int main(int argc, char* argv[])
     fout.flush();
     fout.close();
 
-    if (!vm.count("--transpile-only")) {
+    if (!vm.count("transpile")) {
         // Run the code
         const char *path = std::getenv("PATH");
         std::filesystem::path cur_path = std::filesystem::current_path();
