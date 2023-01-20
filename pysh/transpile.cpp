@@ -130,7 +130,7 @@ std::ostream& process_line(std::string& line, std::ostream& out)
 int main(int argc, char* argv[])
 {
     if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <file>\n";
+        std::cerr << "Usage: " << argv[0] << " FILE [OPTIONS]\n";
         return 1;
     }
 
