@@ -89,7 +89,7 @@ std::ostream& process_line(std::string& line, std::ostream& out)
             out << std::string(indent_level * 4, ' ');
 
             // Inject subprocess call
-            out << "_ = subprocess.Popen(f'" << substr << "', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].decode('utf-8').rstrip()\n";
+            out << "_ = subprocess.Popen(f'" << substr << "', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].decode('utf-8').rstrip()\n";
 
             // Check for formatters
             if (cmd_idx[i] > 0 && (std::isalnum(line[cmd_idx[i] - 1]) || line[cmd_idx[i] - 1] == '_')) {
@@ -166,7 +166,7 @@ int main(int argc, char* argv[])
     std::ifstream fin(argv[1]);
     std::ofstream fout("out.py");
 
-    fout << "import subprocess\n\n";
+    fout << "import subprocess\nimport os\n\n";
     fout << "class list(list):\n"
             "    def map(self, f):\n"
             "        return list(map(f, self))\n\n";
