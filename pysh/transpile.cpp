@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
     }
 
     if (vm.count("version")) {
-        std::cout << "pysh version 1.2" << std::endl;
+        std::cout << "pysh version 1.2.1" << std::endl;
         return 0;
     }
 

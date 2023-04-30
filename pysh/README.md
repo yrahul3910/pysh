@@ -21,7 +21,44 @@ pysh follows a simple syntax, but has the following basic rules:
 
 ### Requirements
 
-pysh requires C++20 and CMake 3.13 or higher. It has been tested on macOS Ventura.
+pysh requires C++20 and CMake 3.13 or higher, and uses Boost with the `program_options` library. It has been tested on macOS Ventura. Install Boost as follows:
+
+### macOS
+
+```sh
+./bootstrap.sh
+./b2 install --with-program_options
+```
+
+### Debian-based distros
+
+```sh
+sudo apt update && sudo apt install libboost-all-dev
+```
+
+### RHEL-based distros
+
+```sh
+sudo yum install epel-release && sudo yum install boost-devel
+```
+
+### SUSE-based distros
+
+```sh
+sudo zypper install boost-devel
+```
+
+### Arch-based distros
+
+```sh
+sudo pacman -S boost
+```
+
+### Gentoo
+
+```sh
+sudo emerge dev-libs/boost
+```
 
 ### Instructions
 
@@ -33,7 +70,13 @@ cd build
 make
 ```
 
+On Apple Silicon Macs, you might need `cmake -S . -B build -DCMAKE_OSX_ARCHITECTURES=arm64`.
+
 ## Change Log
+
+### v1.2.1
+
+* Updated `subprocess.run` to use `cwd=os.getcwd()`.
 
 ### v1.2
 
