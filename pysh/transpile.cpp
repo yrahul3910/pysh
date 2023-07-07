@@ -6,7 +6,6 @@
 #include <fstream>
 #include <cstdlib>
 #include <iostream>
-#include <exception>
 #include <filesystem>
 #include <algorithm>
 #include <boost/program_options.hpp>

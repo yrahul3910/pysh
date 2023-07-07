@@ -37,21 +37,9 @@ for i in range(20):
     job_id = output.split()[-1]
 
     time.sleep(3)
-    job_running = int`squeue | grep {{job_id}} | wc -l` > 0
+    job_running = int`squeue | grep -c {{job_id}} | wc -l` > 0
     if not job_running:
         print("Job", job_id, "is not running!")
 ```
 
 In this code, we use the double bracket syntax to use a Python variable in a shell command.
-
-* **Embedded shell scripts:** One could also embed multi-line shell scripts as follows:
-
-In this example, we concatenate the output of several files produced by slurm jobs into a list of strings.
-
-    lines = list.str```
-    for file in slurm*.out
-    do
-        cat $file
-    done
-    ```
-
