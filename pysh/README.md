@@ -74,6 +74,10 @@ On Apple Silicon Macs, you might need `cmake -S . -B build -DCMAKE_OSX_ARCHITECT
 
 ## Change Log
 
+### v1.2.2
+
+* Added `-o` option (output file).
+
 ### v1.2.1
 
 * Updated `subprocess.run` to use `cwd=os.getcwd()`.

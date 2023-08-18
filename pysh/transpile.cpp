@@ -139,6 +139,7 @@ int main(int argc, char* argv[])
         ("help,h", "produce help message")
         ("version,v", "print version")
         ("transpile,t", "transpile-only mode")
+        ("output,o", po::value<std::string>()->default_value("out.py"), "output file")
     ;
 
     po::variables_map vm;
@@ -151,7 +152,7 @@ int main(int argc, char* argv[])
     }
 
     if (vm.count("version")) {
-        std::cout << "pysh version 1.2.1" << std::endl;
+        std::cout << "pysh version 1.2.2" << std::endl;
         return 0;
     }
 
@@ -161,9 +162,8 @@ int main(int argc, char* argv[])
         return 2;
     }
 
-    // TODO: Change this to a filename input
     std::ifstream fin(argv[1]);
-    std::ofstream fout("out.py");
+    std::ofstream fout(vm["output"].as<std::string>());
 
     fout << "import subprocess\nimport os\n\n";
     fout << "class list(list):\n"
