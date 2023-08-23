@@ -77,6 +77,7 @@ On Apple Silicon Macs, you might need `cmake -S . -B build -DCMAKE_OSX_ARCHITECT
 ### v1.2.2
 
 * Added `-o` option (output file).
+* Bug fix when templated commands are in a comment.
 
 ### v1.2.1
 

@@ -22,6 +22,7 @@
 std::ostream& process_line(std::string& line, std::ostream& out)
 {
     static int indent_level = 0;
+    // TODO: Maybe this should be static?
     bool spaces_to_indent = true;
 
     std::smatch match;
@@ -50,6 +51,17 @@ std::ostream& process_line(std::string& line, std::ostream& out)
         }
     } else {
         indent_level = 0;
+    }
+
+    // Remove everything after the first # sign. However, if the # sign is in a string, don't remove it.
+    bool in_string = false;
+    for (size_t i{}; i < line.size(); ++i) {
+        if (line[i] == '"') {
+            in_string = !in_string;
+        } else if (line[i] == '#' && !in_string) {
+            line.erase(i);
+            break;
+        }
     }
 
     // Parse template args in the string.
