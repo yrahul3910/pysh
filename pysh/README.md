@@ -67,10 +67,23 @@ From the source directory, run
 ```shell
 cmake -S . -B build
 cd build
-make
+make && sudo make install
 ```
 
 On Apple Silicon Macs, you might need `cmake -S . -B build -DCMAKE_OSX_ARCHITECTURES=arm64`.
+
+## Testing
+
+Testing is implemented at two levels: one using Catch2 for unit tests, and another using Python's 
+`unittest` module for integration tests. To run the unit tests, run `make test` from the build directory. 
+
+To run the integration tests, run 
+
+```sh
+pysh tests.pysh -o tests.py -t
+pytest tests.py --cov
+rm tests.py .coverage
+```
 
 ## Change Log
 

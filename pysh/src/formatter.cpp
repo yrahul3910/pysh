@@ -1,4 +1,4 @@
-#include "formatter.h"
+#include "formatter.hpp"
 
 type_formatter::type_formatter(std::string fmt, int indent_level)
     : fmt{std::move(fmt)}, indent_level{indent_level}
