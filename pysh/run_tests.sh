@@ -22,4 +22,4 @@ cd ../build
 make test
 
 echo "(5/5) Uploading coverage report to Codecov..."
-curl --retry 5 -s https://codecov.io/bash > codecov.bash && bash codecov.bash -Z -X gcov
+curl --retry 5 -s https://codecov.io/bash > codecov.bash && bash codecov.bash -Z
