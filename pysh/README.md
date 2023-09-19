@@ -1,5 +1,9 @@
 # pysh
 
+<a href="https://codecov.io/gh/yrahul3910/pysh" > 
+ <img src="https://codecov.io/gh/yrahul3910/pysh/graph/badge.svg?token=16LRWU2DMA"/> 
+ </a>
+
 The goal of this project is to develop a superset of Python that allows users to write Shell commands in Python. These are transpiled into Python that call the required shell commands.
 
 ## Syntax
