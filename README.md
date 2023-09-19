@@ -1,5 +1,9 @@
 # pysh
 
+<a href="https://codecov.io/gh/yrahul3910/pysh" > 
+ <img src="https://codecov.io/gh/yrahul3910/pysh/graph/badge.svg?token=16LRWU2DMA"/> 
+ </a>
+
 [Get the Pysh Syntax Highlighter extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=RahulYedida.pysh-highlighting)
 
 pysh is a syntax that transpiles to Python. It allows you to embed shell scripts into your Python code for syntactic sugar. 
