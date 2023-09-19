@@ -27,12 +27,5 @@ jobs:
     - name: Run tests
       run: cd pysh && ./run_tests.sh
 
-  coverage:
-    needs: tests
-    runs-on: ubuntu-latest
-    environment: secrets
-    env:
-      COVERAGE: 1
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    steps:
-    - uses: codecov/codecov-action@v3
+    - name: Upload coverage to Codecov
+      run: curl --retry 5 -s https://codecov.io/bash > codecov.bash && bash codecov.bash -Z -X gcov
