@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)  # CMake version check
 project(pysh)               # Create project "simple_example"
 set(CMAKE_CXX_STANDARD 20)            # Enable c++20 standard
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Weffc++")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Weffc++ -fprofile-arcs -ftest-coverage --coverage")
 set(Boost_INCLUDE_DIR /usr/local/include/)
 set(Boost_LIBRARY_DIR /usr/local/lib/)
 
