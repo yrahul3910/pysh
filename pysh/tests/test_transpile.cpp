@@ -24,7 +24,7 @@ TEST_CASE("tabs are preserved", "[transpile]")
     std::string line = "\tprint('Hello, world!')";
     std::stringstream ss;
     process_line(line, ss);
-    REQUIRE(ss.str() == "    print('Hello, world!')\n");
+    REQUIRE(ss.str() == "        print('Hello, world!')\n");
 }
 
 TEST_CASE("comments are removed", "[transpile]")
@@ -48,5 +48,5 @@ TEST_CASE("list template parses to comprehension", "[transpile]")
     std::string line = "list.int`cat file.txt`";
     std::stringstream ss;
     process_line(line, ss);
-    REQUIRE(ss.str() == "_ = subprocess.Popen(f'cat file.txt', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].decode('utf-8').rstrip()\n_ = [int(x) for x in _]\n");
+    REQUIRE(ss.str() == "_ = subprocess.Popen(f'cat file.txt', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].decode('utf-8').rstrip()\n_ = [int(x) for x in _.split('\\n')]\n_\n");
 }
