@@ -110,6 +110,10 @@ this.
 
 ## Change Log
 
+### v1.3.0
+
+* Support for user-defined formatters! Any Python callable that takes one argument is a valid formatter.
+
 ### v1.2.3
 
 * Added global `EXIT_CODE` and `STDERR` variables.

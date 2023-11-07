@@ -28,6 +28,7 @@ class type_formatter : public basic_formatter
     int indent_level;
     [[nodiscard]] std::string get_indent_string(int) const;
     [[nodiscard]] std::string get_safe_formatter() const;
+    [[nodiscard]] std::string get_safe_custom_formatter() const;
 
 public:
     explicit type_formatter(std::string, int);

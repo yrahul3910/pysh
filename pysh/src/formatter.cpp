@@ -14,13 +14,27 @@ std::string type_formatter::get_indent_string(int additional=0) const {
 /**
  * Returns Python code that checks whether the string
  * can be safely casted to the desired type.
- * 
- * TODO: Check indent level
  */
 std::string type_formatter::get_safe_formatter() const {
     std::string check_cast_code = get_indent_string() + "try:\n" + get_indent_string(1) +
         "_ = " + fmt + "(_)\n" + get_indent_string() + "except ValueError:\n" + get_indent_string(1) +
         "raise\n";
+
+    return check_cast_code;
+}
+
+/**
+ * Returns Python code that checks whether the string
+ * can be safely cast to a user-defined formatter.
+ */
+std::string type_formatter::get_safe_custom_formatter() const {
+    std::string check_cast_code = get_indent_string() + \
+        "try:\n" + \
+        get_indent_string() + "_ = " + fmt + "(_)\n" + \
+        get_indent_string() + "except NameError:\n" + \
+        get_indent_string(1) + "raise NameError('" + fmt + " is not a valid custom formatter.')\n" + \
+        get_indent_string() + "except TypeError:\n" + \
+        get_indent_string(1) + "raise TypeError('" + fmt + " is not callable, or takes too many args.')\n";
 
     return check_cast_code;
 }
@@ -39,5 +53,5 @@ std::string type_formatter::format() const
         return get_indent_string() + "_ = [" + list_type + "(x) for x in _.split('\\n')]\n";
     }
 
-    throw std::invalid_argument("Formatter for type does not exist.");
+    return get_safe_custom_formatter();
 };
