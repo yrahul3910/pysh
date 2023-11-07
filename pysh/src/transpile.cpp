@@ -101,9 +101,9 @@ std::ostream& process_line(std::string& line, std::ostream& out)
             out << std::string(indent_level * 4, ' ');
             out << "EXIT_CODE = proc.returncode\n";
             out << std::string(indent_level * 4, ' ');
-            out << "_ = proc.communicate()[0].decode('utf-8').rstrip()\n";
+            out << "__comm = proc.communicate()\n";
             out << std::string(indent_level * 4, ' ');
-            out << "STDERR = proc.communicate()[1].decode('utf-8').rstrip()\n";
+            out << "_, STDERR = __comm[0].decode('utf-8').rstrip(), __comm[1].decode('utf-8').rstrip()\n";
 
             // Check for formatters
             if (cmd_idx[i] > 0 && (std::isalnum(line[cmd_idx[i] - 1]) || line[cmd_idx[i] - 1] == '_')) {
