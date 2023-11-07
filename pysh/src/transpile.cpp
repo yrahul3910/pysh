@@ -95,7 +95,7 @@ std::ostream& process_line(std::string& line, std::ostream& out)
             out << std::string(indent_level * 4, ' ');
 
             // Inject subprocess call
-            out << "proc = subprocess.Popen(f'" << substr << "', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)\n";
+            out << "proc = subprocess.Popen(f'" << substr << "', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n";
             out << std::string(indent_level * 4, ' ');
             out << "proc.wait()\n";
             out << std::string(indent_level * 4, ' ');

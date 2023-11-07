@@ -21,6 +21,11 @@ pysh follows a simple syntax, but has the following basic rules:
 * Inside formatted expressions, single quotes are not permitted. Use double quotes instead.
 * pysh extends the `list` class to add a `map` function that works similarly to the JavaScript `Array.map`. It takes a lambda as input, applies it to each element, and then returns the final list.
 
+## Global variables
+
+When you use the template syntax to run a process via `pysh`, it exposes two variables after the process has run: `EXIT_CODE` and `STDERR`. `EXIT_CODE` is the exit code of the process, and `STDERR` is the standard error output of the process. Note that
+calling a process via the template syntax is synchronous.
+
 ## Compiling
 
 ### Requirements
