@@ -95,7 +95,15 @@ std::ostream& process_line(std::string& line, std::ostream& out)
             out << std::string(indent_level * 4, ' ');
 
             // Inject subprocess call
-            out << "_ = subprocess.Popen(f'" << substr << "', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].decode('utf-8').rstrip()\n";
+            out << "proc = subprocess.Popen(f'" << substr << "', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)\n";
+            out << std::string(indent_level * 4, ' ');
+            out << "proc.wait()\n";
+            out << std::string(indent_level * 4, ' ');
+            out << "EXIT_CODE = proc.returncode\n";
+            out << std::string(indent_level * 4, ' ');
+            out << "_ = proc.communicate()[0].decode('utf-8').rstrip()\n";
+            out << std::string(indent_level * 4, ' ');
+            out << "STDERR = proc.communicate()[1].decode('utf-8').rstrip()\n";
 
             // Check for formatters
             if (cmd_idx[i] > 0 && (std::isalnum(line[cmd_idx[i] - 1]) || line[cmd_idx[i] - 1] == '_')) {

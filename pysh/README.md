@@ -89,7 +89,25 @@ pytest tests.py --cov
 rm tests.py .coverage
 ```
 
+Both of these are done by the `run_tests.sh` script.
+
+## Known Issues
+
+As of the latest version, there is one major known issue: list and dict comprehensions. Specifically, the following syntax
+is not yet supported:
+
+```
+numbers = [int`cat {file}` for file in files]
+```
+
+That is, while comprehensions themselves are fine, using template strings within them is not. A future version will address
+this.
+
 ## Change Log
+
+### v1.2.3
+
+* Added global `EXIT_CODE` and `STDERR` variables.
 
 ### v1.2.2
 
