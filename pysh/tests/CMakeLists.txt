@@ -2,7 +2,7 @@ set(Boost_INCLUDE_DIR /usr/local/include/)
 set(Boost_LIBRARY_DIR /usr/local/lib/)
 
 find_package(Boost REQUIRED)
-find_package(Boost COMPONENTS program_options REQUIRED)
+find_package(Boost COMPONENTS program_options regex REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIR})
 

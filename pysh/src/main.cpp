@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
     std::ifstream fin(argv[1]);
     std::ofstream fout(out_filename);
 
-    fout << "import subprocess\nimport os\n\n";
+    fout << "import subprocess\nimport os\nimport threading\n\n";
     fout << "class list(list):\n"
             "    def map(self, f):\n"
             "        return list(map(f, self))\n\n";

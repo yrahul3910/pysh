@@ -2,12 +2,31 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include <cctype>
 #include <algorithm>
+#include <boost/regex.hpp>
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include "formatter.hpp"
 #include "transpile.hpp"
+
+std::ostream& inject_cmd_call(std::ostream& out, const std::string& cmd, const int indent_level)
+{
+    // Add in indents
+    out << std::string(indent_level * 4, ' ');
+
+    // Inject subprocess call
+    out << "__proc = subprocess.Popen(f'" << cmd << "', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n";
+    out << std::string(indent_level * 4, ' ');
+    out << "__proc.wait()\n";
+    out << std::string(indent_level * 4, ' ');
+    out << "EXIT_CODE = __proc.returncode\n";
+    out << std::string(indent_level * 4, ' ');
+    out << "__comm = __proc.communicate()\n";
+    out << std::string(indent_level * 4, ' ');
+    out << "_, STDERR = __comm[0].decode('utf-8').rstrip(), __comm[1].decode('utf-8').rstrip()\n";
+
+    return out;
+}
 
 /** Process a single line.
  *
@@ -49,6 +68,7 @@ std::ostream& process_line(std::string& line, std::ostream& out)
     }
 
     // Remove everything after the first # sign. However, if the # sign is in a string, don't remove it.
+    // TODO: We might want to support single quotes too.
     bool in_string = false;
     for (size_t i{}; i < line.size(); ++i) {
         if (line[i] == '"') {
@@ -91,37 +111,45 @@ std::ostream& process_line(std::string& line, std::ostream& out)
         for (size_t i{}, j{1}; i < cmd_idx.size(); i += 2, j += 2) {
             std::string substr = line.substr(cmd_idx[i] + 1, cmd_idx[j] - cmd_idx[i] - 1);
 
-            // Add in indents
-            out << std::string(indent_level * 4, ' ');
+            // Get the formatter before the backtick
+            size_t fmt_start_idx = (i == 0) ? 0 : cmd_idx[i - 1];
+            size_t fmt_end_idx = cmd_idx[i];
+            std::string potential_fmt = line.substr(fmt_start_idx, fmt_end_idx - fmt_start_idx + 1);
 
-            // Inject subprocess call
-            out << "proc = subprocess.Popen(f'" << substr << "', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n";
-            out << std::string(indent_level * 4, ' ');
-            out << "proc.wait()\n";
-            out << std::string(indent_level * 4, ' ');
-            out << "EXIT_CODE = proc.returncode\n";
-            out << std::string(indent_level * 4, ' ');
-            out << "__comm = proc.communicate()\n";
-            out << std::string(indent_level * 4, ' ');
-            out << "_, STDERR = __comm[0].decode('utf-8').rstrip(), __comm[1].decode('utf-8').rstrip()\n";
+            /*
+             * The regex for a formatter string. See https://github.com/yrahul3910/pysh/issues/7#issuecomment-1803175723
+             */
+            boost::regex fmt_rgx(R"(([a-zA-Z0-9()_.]+)(?:\.(foreach|other)(\[[a-z]+\])?(\([a-zA-Z0-9_]+(?:,\s*?[a-zA-Z0-9_]+)*\))(?::([^`]*))?)?`)");
+            boost::smatch matches;
+            if (boost::regex_search(potential_fmt, matches, fmt_rgx)) {
+                std::string collection, attributes, func_call, format;
 
-            // Check for formatters
-            if (cmd_idx[i] > 0 && (std::isalnum(line[cmd_idx[i] - 1]) || line[cmd_idx[i] - 1] == '_')) {
-                int k;
-                for (k = cmd_idx[i] - 2; k >= 0; --k) {
-                    if (!std::isalnum(line[k]) && line[k] != '_' && line[k] != '.')
-                        break;
+                if (matches.size() > 1 && !std::string(matches[2]).empty()) {
+                    // We have a more complex formatter.
+                    collection = matches[1];
+                    // In the future, if we implement more functions than `foreach`, we need to capture the function name too.
+                    attributes = matches[3];
+                    // TODO: Implement async attribute
+                    func_call = matches[4];
+
+                    if (!func_call.empty()) {
+                        func_call = func_call.substr(1, func_call.size() - 2);
+                    }
+
+                    format = matches[5];
+
+                    out << std::string(indent_level * 4, ' ');
+                    out << "__coll = []\n";
+                    out << "for " << func_call << " in " << collection << ":\n";
+                    indent_level++;
+                } else {
+                    format = matches[1];
                 }
 
-                std::string format = line.substr(k + 1, cmd_idx[i] - k - 1);
+                // Inject the subprocess call
+                inject_cmd_call(out, substr, indent_level);
 
-                // Now that we have the format, remove it from the line.
-                line.erase(k + 1, cmd_idx[i] - k - 1);
-                cmd_idx[i] -= format.size();
-                cmd_idx[j] -= format.size();
-
-                // Apply formatter
-                // If "str", do nothing.
+                // Parse the formatter. If "str", do nothing.
                 if (format != "str") {
                     type_formatter formatter{format, indent_level};
                     std::string formatted = formatter.format();
@@ -129,10 +157,23 @@ std::ostream& process_line(std::string& line, std::ostream& out)
                     // Output formatted string
                     out << formatted;
                 }
-            }
 
-            // Now, replace the part in quotes with our variable
-            out << line.replace(cmd_idx[i], cmd_idx[j] - cmd_idx[i] + 1, "_") << "\n";
+                if (matches.size() > 1 && !std::string(matches[2]).empty()) {
+                    out << std::string(indent_level * 4, ' ');
+                    out << "__coll.append(_)\n";
+
+                    indent_level--;
+                }
+
+                // Replace the pysh line with transpiled line
+                size_t match_pos = matches.position();
+
+                if (matches.size() > 1 && !std::string(matches[2]).empty()) {
+                    out << line.replace(match_pos, cmd_idx[j] - match_pos + 1, "__coll") << "\n";
+                } else {
+                    out << line.replace(match_pos, cmd_idx[j] - match_pos + 1, "_") << "\n";
+                }
+            }
         }
     } else {
         out << line << "\n";

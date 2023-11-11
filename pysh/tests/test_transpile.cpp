@@ -40,7 +40,7 @@ TEST_CASE("template literals are parsed", "[transpile]")
     std::string line = "int`cat file.txt`";
     std::stringstream ss;
     process_line(line, ss);
-    REQUIRE(ss.str() == "_ = subprocess.Popen(f'cat file.txt', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].decode('utf-8').rstrip()\ntry:\n    _ = int(_)\nexcept ValueError:\n    raise\n_\n");
+    REQUIRE(ss.str() == "__proc = subprocess.Popen(f'cat file.txt', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n__proc.wait()\nEXIT_CODE = __proc.returncode\n__comm = __proc.communicate()\n_, STDERR = __comm[0].decode('utf-8').rstrip(), __comm[1].decode('utf-8').rstrip()\ntry:\n    _ = int(_)\nexcept ValueError:\n    raise\n_\n");
 }
 
 TEST_CASE("list template parses to comprehension", "[transpile]")
@@ -48,5 +48,25 @@ TEST_CASE("list template parses to comprehension", "[transpile]")
     std::string line = "list.int`cat file.txt`";
     std::stringstream ss;
     process_line(line, ss);
-    REQUIRE(ss.str() == "_ = subprocess.Popen(f'cat file.txt', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].decode('utf-8').rstrip()\n_ = [int(x) for x in _.split('\\n')]\n_\n");
+    REQUIRE(ss.str() == "__proc = subprocess.Popen(f'cat file.txt', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n__proc.wait()\nEXIT_CODE = __proc.returncode\n__comm = __proc.communicate()\n_, STDERR = __comm[0].decode('utf-8').rstrip(), __comm[1].decode('utf-8').rstrip()\n_ = [int(x) for x in _.split('\\n')]\n_\n");
+}
+
+TEST_CASE("foreach works correctly", "[transpile]")
+{
+    std::string line = "lines = lines.foreach(i, file):int`cat {file}`";
+    std::stringstream ss;
+    process_line(line, ss);
+    REQUIRE(ss.str() == "__coll = []\n"
+        "for i, file in lines:\n"
+        "    __proc = subprocess.Popen(f'cat {file}', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n"
+        "    __proc.wait()\n"
+        "    EXIT_CODE = __proc.returncode\n"
+        "    __comm = __proc.communicate()\n"
+        "    _, STDERR = __comm[0].decode('utf-8').rstrip(), __comm[1].decode('utf-8').rstrip()\n"
+        "    try:\n"
+        "        _ = int(_)\n"
+        "    except ValueError:\n"
+        "        raise\n"
+        "    __coll.append(_)\n"
+        "lines = __coll\n");
 }

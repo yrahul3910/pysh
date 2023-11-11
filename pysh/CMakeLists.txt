@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.13)  # CMake version check
-project(pysh)               # Create project "simple_example"
-set(CMAKE_CXX_STANDARD 20)            # Enable c++20 standard
+cmake_minimum_required(VERSION 3.13)
+project(pysh)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Weffc++ -fprofile-arcs -ftest-coverage --coverage")
 set(Boost_INCLUDE_DIR /usr/local/include/)
 set(Boost_LIBRARY_DIR /usr/local/lib/)
@@ -14,7 +14,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(catch2)
 
 find_package(Boost REQUIRED)
-find_package(Boost COMPONENTS program_options REQUIRED)
+find_package(Boost COMPONENTS program_options regex REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIR})
 
