@@ -113,6 +113,7 @@ this.
 ### v1.3.0
 
 * Support for user-defined formatters! Any Python callable that takes one argument is a valid formatter.
+* Advanced formatters! See the wiki for details.
 
 ### v1.2.3
 
