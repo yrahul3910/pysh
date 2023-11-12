@@ -8,6 +8,8 @@
 
 pysh is a syntax that transpiles to Python. It allows you to embed shell scripts into your Python code for syntactic sugar. 
 
+Check the [wiki](https://github.com/yrahul3910/pysh/wiki) for detailed documentation.
+
 ## Syntax
 
 `pysh` has the following major syntax additions to Python:
