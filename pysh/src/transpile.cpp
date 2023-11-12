@@ -119,7 +119,7 @@ std::ostream& process_line(std::string& line, std::ostream& out)
             /*
              * The regex for a formatter string. See https://github.com/yrahul3910/pysh/issues/7#issuecomment-1803175723
              */
-            boost::regex fmt_rgx(R"(([a-zA-Z0-9()_.]+)(?:\.(foreach|other)(\[[a-z]+\])?(\([a-zA-Z0-9_]+(?:,\s*?[a-zA-Z0-9_]+)*\))(?::([^`]*))?)?`)");
+            boost::regex fmt_rgx(R"((?:([A-Z([a-zA-Z0-9()_.]+)(?:\.(foreach)(\[[a-z]+\])?(\([a-zA-Z0-9_]+(?:,\s*?[a-zA-Z0-9_]+)*\))(?::([^`]*))?)?)?`)");
             boost::smatch matches;
             if (boost::regex_search(potential_fmt, matches, fmt_rgx)) {
                 std::string collection, attributes, func_call, format;
@@ -150,7 +150,7 @@ std::ostream& process_line(std::string& line, std::ostream& out)
                 inject_cmd_call(out, substr, indent_level);
 
                 // Parse the formatter. If "str", do nothing.
-                if (format != "str") {
+                if (format != "str" && !format.empty()) {
                     type_formatter formatter{format, indent_level};
                     std::string formatted = formatter.format();
 
