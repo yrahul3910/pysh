@@ -140,7 +140,7 @@ std::ostream& process_line(std::string& line, std::ostream& out)
 
                     out << std::string(indent_level * 4, ' ');
                     out << "__coll = []\n";
-                    out << "for " << func_call << " in " << collection << ":\n";
+                    out << "for " << func_call << " in enumerate(" << collection << "):\n";
                     indent_level++;
                 } else {
                     format = matches[1];

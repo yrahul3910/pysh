@@ -57,7 +57,7 @@ TEST_CASE("foreach works correctly", "[transpile]")
     std::stringstream ss;
     process_line(line, ss);
     REQUIRE(ss.str() == "__coll = []\n"
-        "for i, file in lines:\n"
+        "for i, file in enumerate(lines):\n"
         "    __proc = subprocess.Popen(f'cat {file}', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n"
         "    __proc.wait()\n"
         "    EXIT_CODE = __proc.returncode\n"
