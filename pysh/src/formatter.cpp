@@ -30,7 +30,7 @@ std::string type_formatter::get_safe_formatter() const {
 std::string type_formatter::get_safe_custom_formatter() const {
     std::string check_cast_code = get_indent_string() + \
         "try:\n" + \
-        get_indent_string() + "_ = " + fmt + "(_)\n" + \
+        get_indent_string(1) + "_ = " + fmt + "(_)\n" + \
         get_indent_string() + "except NameError:\n" + \
         get_indent_string(1) + "raise NameError('" + fmt + " is not a valid custom formatter.')\n" + \
         get_indent_string() + "except TypeError:\n" + \

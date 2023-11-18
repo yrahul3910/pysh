@@ -43,6 +43,19 @@ TEST_CASE("template literals are parsed", "[transpile]")
     REQUIRE(ss.str() == "__proc = subprocess.Popen(f'cat file.txt', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n__proc.wait()\nEXIT_CODE = __proc.returncode\n__comm = __proc.communicate()\n_, STDERR = __comm[0].decode('utf-8').rstrip(), __comm[1].decode('utf-8').rstrip()\ntry:\n    _ = int(_)\nexcept ValueError:\n    raise\n_\n");
 }
 
+TEST_CASE("re-substitution works correctly", "[transpile]")
+{
+    std::string line = "n_lines = int(`wc -l {filename}`.split()[0])";
+    std::stringstream ss;
+    process_line(line, ss);
+    REQUIRE(ss.str() == "__proc = subprocess.Popen(f'wc -l {filename}', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n"
+        "__proc.wait()\n"
+        "EXIT_CODE = __proc.returncode\n"
+        "__comm = __proc.communicate()\n"
+        "_, STDERR = __comm[0].decode('utf-8').rstrip(), __comm[1].decode('utf-8').rstrip()\n"
+        "n_lines = int(_.split()[0])\n");
+}
+
 TEST_CASE("list template parses to comprehension", "[transpile]")
 {
     std::string line = "list.int`cat file.txt`";
