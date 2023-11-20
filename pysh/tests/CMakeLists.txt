@@ -12,7 +12,7 @@ endif()
 
 add_executable(tests test_transpile.cpp ../src/transpile.cpp ../src/transpile.hpp ../src/formatter.cpp ../src/formatter.hpp)
 target_include_directories(tests PRIVATE ../src/)
-target_link_libraries(tests ${Boost_LIBS} Boost::program_options Catch2::Catch2WithMain)
+target_link_libraries(tests ${Boost_LIBS} Boost::regex Boost::program_options Catch2::Catch2WithMain)
 
 target_compile_options(tests PRIVATE --coverage)
 target_link_options(tests PRIVATE --coverage)
