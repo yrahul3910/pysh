@@ -10,7 +10,7 @@ if(NOT Boost_FOUND)
     message(FATAL_ERROR "Could not find boost!")
 endif()
 
-add_executable(tests test_transpile.cpp ../src/transpile.cpp ../src/transpile.hpp ../src/formatter.cpp ../src/formatter.hpp)
+add_executable(tests test_transpile.cpp test_formatter.cpp ../src/transpile.cpp ../src/transpile.hpp ../src/formatter.cpp ../src/formatter.hpp)
 target_include_directories(tests PRIVATE ../src/)
 target_link_libraries(tests ${Boost_LIBS} Boost::regex Boost::program_options Catch2::Catch2WithMain)
 
