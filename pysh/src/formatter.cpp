@@ -28,7 +28,7 @@ std::string type_formatter::get_safe_formatter() const {
  * can be safely cast to a user-defined formatter.
  */
 std::string type_formatter::get_safe_custom_formatter() const {
-    std::string check_cast_code = get_indent_string() + \
+    const std::string check_cast_code = get_indent_string() + \
         "try:\n" + \
         get_indent_string(1) + "_ = " + fmt + "(_)\n" + \
         get_indent_string() + "except NameError:\n" + \
@@ -46,11 +46,20 @@ std::string type_formatter::format() const
         return get_safe_formatter();
 
     if (fmt == "list")
-        return get_indent_string() + "_ = _.split('\\n')\n" + get_safe_formatter();
+        return get_indent_string() + "_ = _.split('\\n')\n";
 
     if (fmt.starts_with("list.")) {
         std::string list_type = fmt.substr(5);
-        return get_indent_string() + "_ = [" + list_type + "(x) for x in _.split('\\n')]\n";
+
+        if (list_type == "str")
+            return get_indent_string() + "_ = _.split('\\n')\n";
+
+        const std::string check_cast_code = get_indent_string() + \
+            "try:\n" + \
+            get_indent_string(1) + "_ = [" + list_type + "(x) for x in _.split('\\n')]\n" + \
+            get_indent_string() + "except ValueError:\n" + \
+            get_indent_string(1) + "raise\n";
+        return check_cast_code;
     }
 
     return get_safe_custom_formatter();

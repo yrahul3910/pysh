@@ -9,13 +9,24 @@
 #include "formatter.hpp"
 #include "transpile.hpp"
 
-std::ostream& inject_cmd_call(std::ostream& out, const std::string& cmd, const int indent_level)
+std::ostream& inject_cmd_call(std::ostream& out, const std::string& cmd, const int indent_level, bool async=false)
 {
     // Add in indents
     out << std::string(indent_level * 4, ' ');
 
     // Inject subprocess call
     out << "__proc = subprocess.Popen(f'" << cmd << "', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n";
+
+    // If async, don't need to do anything else
+    if (async) {
+        // We set these to None so that users do not accidentally access them.
+        out << std::string(indent_level * 4, ' ');
+        out << "_ = None\n";
+        out << std::string(indent_level * 4, ' ');
+        out << "EXIT_CODE = None\n";
+        return out;
+    }
+
     out << std::string(indent_level * 4, ' ');
     out << "__proc.wait()\n";
     out << std::string(indent_level * 4, ' ');
@@ -123,26 +134,26 @@ std::ostream& process_line(std::string& line, std::ostream& out)
             std::string potential_fmt = line.substr(fmt_start_idx, fmt_end_idx - fmt_start_idx + 1);
 
             /*
-             * The regex for a formatter string. See https://github.com/yrahul3910/pysh/issues/7#issuecomment-1803175723
+             * The regex for a formatter string.
+             * The regex is as follows:
+             * ([a-zA-Z0-9_.]+(?:(?:\([^)]*\)|\[[^\]]*\])[a-zA-Z0-9_.]*)*) - Matches the base item (e.g., foo, foo.items())
+             *                      This part is complex because it handles multiple cases, including formatters inside
+             *                      an array, etc.
+             * (?:\.(foreach)\((.*)\)(?::([^`$]*))?)   - Matches a foreach call, with a potential formatter later
+             * (\$[a-z]+)?                             - Matches an attribute list
              */
-            boost::regex fmt_rgx(R"((?:([a-zA-Z0-9_.]+)(?:\.(foreach)(\[[a-z]+\])?(\([a-zA-Z0-9_]+(?:,\s*?[a-zA-Z0-9_]+)*\))(?::([^`]*))?)?)?`)");
+            boost::regex fmt_rgx(R"((?:([a-zA-Z0-9_.]+(?:(?:\([^)]*\)|\[[^\]]*\])[a-zA-Z0-9_.]*)*)(?:\.(foreach)\((.*)\)(?::([^`$]*))?)?)?(\$[a-z]+)?`)");
             boost::smatch matches;
             if (boost::regex_search(potential_fmt, matches, fmt_rgx)) {
                 std::string collection, attributes, func_call, format;
+                std::vector<char> attribute_list;
 
                 if (matches.size() > 1 && !std::string(matches[2]).empty()) {
                     // We have a more complex formatter.
                     collection = matches[1];
                     // In the future, if we implement more functions than `foreach`, we need to capture the function name too.
-                    attributes = matches[3];
-                    // TODO: Implement async attribute
-                    func_call = matches[4];
-
-                    if (!func_call.empty()) {
-                        func_call = func_call.substr(1, func_call.size() - 2);
-                    }
-
-                    format = matches[5];
+                    func_call = matches[3];
+                    format = matches[4];
 
                     out << std::string(indent_level * 4, ' ');
                     out << "__coll = []\n";
@@ -152,8 +163,24 @@ std::ostream& process_line(std::string& line, std::ostream& out)
                     format = matches[1];
                 }
 
+                if (!matches.empty()) {
+                    attributes = matches[5];
+                    attribute_list = std::vector<char>(attributes.begin(), attributes.end());
+                }
+
+                // Handle async attribute
+                bool async = false;
+                if (std::find(attribute_list.begin(), attribute_list.end(), 'a') != attribute_list.end()) {
+                    async = true;
+                }
+
                 // Inject the subprocess call
-                inject_cmd_call(out, substr, indent_level);
+                inject_cmd_call(out, substr, indent_level, async);
+
+                if (async) {
+                    // We're actually done.
+                    continue;
+                }
 
                 // Parse the formatter. If "str", do nothing.
                 if (format != "str" && !format.empty()) {
