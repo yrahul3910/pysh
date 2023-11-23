@@ -88,15 +88,7 @@ std::ostream& process_line(std::string& line, std::ostream& out)
 
         // Find all backticks
         while ((next_tick_idx = line.find('`', cur_tick_idx)) != std::string::npos) {
-            // First, check that it is not escaped.
-            static std::vector<std::pair<std::string, std::string>> patterns = {
-                    { "\\\\" , "\\" },
-                    { "\\`", "`" },
-            };
-            for ( const auto & p : patterns ) {
-                boost::replace_all(line, p.first, p.second);
-            }
-
+            // If the backtick is not escaped, add it to the list of indices
             if (next_tick_idx > 0 && line[next_tick_idx - 1] != '\\')
                 cmd_idx.push_back(next_tick_idx);
 
@@ -106,6 +98,20 @@ std::ostream& process_line(std::string& line, std::ostream& out)
         // Ensure we have an even number of indices
         if (cmd_idx.size() % 2 == 1)
             throw std::invalid_argument("Invalid number of backticks in line: " + line);
+
+        // First, check that it is not escaped.
+        static std::vector<std::pair<std::string, std::string>> patterns = {
+                { "\\\\" , "\\" },
+                { "\\`", "`" },
+        };
+        for ( const auto & p : patterns ) {
+            boost::replace_all(line, p.first, p.second);
+        }
+
+        if (cmd_idx.empty()) {
+            out << line << "\n";
+            return out;
+        }
 
         // Begin substitution using formatters.
         for (size_t i{}, j{1}; i < cmd_idx.size(); i += 2, j += 2) {

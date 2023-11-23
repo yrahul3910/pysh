@@ -1,5 +1,4 @@
 #include <catch2/catch_test_macros.hpp>
-#include <sstream>
 #include "formatter.hpp"
 
 TEST_CASE("custom formatter works correctly", "[formatter]")

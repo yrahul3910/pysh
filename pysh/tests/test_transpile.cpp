@@ -43,6 +43,30 @@ TEST_CASE("template literals are parsed", "[transpile]")
     REQUIRE(ss.str() == "__proc = subprocess.Popen(f'cat file.txt', shell=True, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n__proc.wait()\nEXIT_CODE = __proc.returncode\n__comm = __proc.communicate()\n_, STDERR = __comm[0].decode('utf-8').rstrip(), __comm[1].decode('utf-8').rstrip()\ntry:\n    _ = int(_)\nexcept ValueError:\n    raise\n_\n");
 }
 
+TEST_CASE("escaped backticks do not get transpiled", "[transpile]")
+{
+    std::string line = "print('\\`')";
+    std::stringstream ss;
+    process_line(line, ss);
+    REQUIRE(ss.str() == "print('`')\n");
+}
+
+TEST_CASE("escaped backticks do not get transpiled, test 2", "[transpile]")
+{
+    std::string line = "print('\\`xyz\\`')";
+    std::stringstream ss;
+    process_line(line, ss);
+    REQUIRE(ss.str() == "print('`xyz`')\n");
+}
+
+TEST_CASE("normal escaped characters transpile correctly", "[transpile]")
+{
+    std::string line = "print('\\n')";
+    std::stringstream ss;
+    process_line(line, ss);
+    REQUIRE(ss.str() == "print('\\n')\n");
+}
+
 TEST_CASE("re-substitution works correctly", "[transpile]")
 {
     std::string line = "n_lines = int(`wc -l {filename}`.split()[0])";
