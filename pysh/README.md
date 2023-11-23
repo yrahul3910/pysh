@@ -110,6 +110,10 @@ this.
 
 ## Change Log
 
+### v1.4.0
+
+* Attributes are here! The first attribute supported is async mode. See the wiki for details.
+
 ### v1.3.0
 
 * Support for user-defined formatters! Any Python callable that takes one argument is a valid formatter.
