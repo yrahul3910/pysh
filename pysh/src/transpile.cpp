@@ -82,7 +82,7 @@ std::ostream& process_line(std::string& line, std::ostream& out)
     // TODO: We might want to support single quotes too.
     bool in_string = false;
     for (size_t i{}; i < line.size(); ++i) {
-        if (line[i] == '"') {
+        if (line[i] == '"' || line[i] == '\'') {
             in_string = !in_string;
         } else if (line[i] == '#' && !in_string) {
             line.erase(i);
