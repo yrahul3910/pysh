@@ -9,6 +9,40 @@
 #include "formatter.hpp"
 #include "transpile.hpp"
 
+std::vector<std::pair<size_t, size_t>> find_quote_pairs(const std::string& str) {
+    std::vector<std::pair<size_t, size_t>> pairs;
+    char quote_type = '\0'; // Track the current opening quote type
+    size_t start_index = 0;  // Store the index of the opening quote
+
+    for (size_t i = 0; i < str.length(); ++i) {
+        if (str[i] == '\\') {
+            // Escaped character
+            ++i;  // Skip the next character
+        } else if (str[i] == '"' || str[i] == '\'') {
+            if (quote_type == '\0') {
+                // Found an opening quote
+                quote_type = str[i];
+                start_index = i;
+            } else if (str[i] == quote_type) {
+                // Found the matching closing quote
+                pairs.emplace_back(start_index, i);
+                quote_type = '\0';  // Reset
+            }
+        }
+    }
+
+    return pairs;
+}
+
+bool is_in_quotes(size_t index, const std::vector<std::pair<size_t, size_t>>& quote_pairs) {
+    for (const auto& pair : quote_pairs) {
+        if (index >= pair.first && index <= pair.second) {
+            return true;
+        }
+    }
+    return false;
+}
+
 std::ostream& inject_cmd_call(std::ostream& out, const std::string& cmd, const int indent_level, bool async=false)
 {
     // Add in indents
@@ -79,7 +113,6 @@ std::ostream& process_line(std::string& line, std::ostream& out)
     }
 
     // Remove everything after the first # sign. However, if the # sign is in a string, don't remove it.
-    // TODO: We might want to support single quotes too.
     bool in_string = false;
     for (size_t i{}; i < line.size(); ++i) {
         if (line[i] == '"' || line[i] == '\'') {
@@ -89,6 +122,8 @@ std::ostream& process_line(std::string& line, std::ostream& out)
             break;
         }
     }
+
+    std::vector<std::pair<size_t, size_t>> quote_pairs = find_quote_pairs(line);
 
     // Parse template args in the string.
     if (line.find('`') != std::string::npos) {
@@ -100,9 +135,10 @@ std::ostream& process_line(std::string& line, std::ostream& out)
         // Find all backticks
         while ((next_tick_idx = line.find('`', cur_tick_idx)) != std::string::npos) {
             // If the backtick is not escaped, add it to the list of indices
-            if (next_tick_idx > 0 && line[next_tick_idx - 1] != '\\')
-                cmd_idx.push_back(next_tick_idx);
-
+            if (next_tick_idx > 0 && line[next_tick_idx - 1] != '\\') {
+                if (!is_in_quotes(next_tick_idx, quote_pairs))
+                    cmd_idx.push_back(next_tick_idx);
+            }
             cur_tick_idx = next_tick_idx + 1;
         }
 
