@@ -6,46 +6,18 @@
 #include "transpile.hpp"
 
 namespace po = boost::program_options;
+namespace fs = std::filesystem;
 
-int main(int argc, char* argv[])
+enum ErrorCode {
+    SUCCESS = 0,
+    ERR_FILE_NOT_FOUND = 2,
+    ERR_FILE_EXISTS_SAFE_MODE = 3
+};
+
+void transpile_file(const std::string& filename, const std::string& out_filename)
 {
-    if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " FILE [OPTIONS]\n";
-        return 1;
-    }
-
-    // Declare the supported options.
-    po::options_description desc("Allowed options");
-    desc.add_options()
-            ("help,h", "produce help message")
-            ("version,v", "print version")
-            ("transpile,t", "transpile-only mode")
-            ("output,o", po::value<std::string>()->default_value("out.py"), "output file")
-            ;
-
-    po::variables_map vm;
-    po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
-    po::notify(vm);
-
-    if (vm.count("help")) {
-        std::cout << desc << "\n";
-        return 0;
-    }
-
-    if (vm.count("version")) {
-        std::cout << "pysh version 1.3.0" << std::endl;
-        return 0;
-    }
-
-    std::filesystem::path filename = argv[1];
-    if (!exists(filename)) {
-        std::cerr << argv[1] << " does not exist." << std::endl;
-        return 2;
-    }
-
-    std::string out_filename = vm["output"].as<std::string>();
-    std::ifstream fin(argv[1]);
-    std::ofstream fout(out_filename);
+    std::ifstream fin(filename.c_str());
+    std::ofstream fout(out_filename.c_str());
 
     fout << "import subprocess\nimport os\nimport threading\n\n";
     fout << "class list(list):\n"
@@ -60,11 +32,70 @@ int main(int argc, char* argv[])
 
     fout.flush();
     fout.close();
+}
+
+int main(int argc, char* argv[])
+{
+    // Declare the supported options.
+    po::options_description desc("Allowed options");
+    desc.add_options()
+            ("help,h", "produce help message")
+            ("version,v", "print version")
+            ("transpile,t", "transpile-only mode")
+            ("input,i", po::value<std::string>()->default_value("main.pysh"), "input file")
+            ("output,o", po::value<std::string>()->default_value(""), "output file")
+            ("safe,s", "safe mode")
+            ("recursive,r", "recursively transpile all files in the directory")
+            ;
+
+    po::variables_map vm;
+    po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        std::cout << desc << "\n";
+        return EXIT_SUCCESS;
+    }
+
+    if (vm.count("version")) {
+        std::cout << "pysh version 1.4.0" << std::endl;
+        return EXIT_SUCCESS;
+    }
+
+    fs::path filename = vm["input"].as<std::string>();
+    if (!fs::exists(filename)) {
+        std::cerr << argv[1] << " does not exist." << std::endl;
+        return ERR_FILE_NOT_FOUND;
+    }
+
+    std::string out_filename = vm["output"].as<std::string>();
+    if (out_filename.empty()) {
+        out_filename = filename.replace_extension(".py").string();
+    }
+
+    bool safe_mode = vm.count("safe");
+
+    if (safe_mode && fs::exists(std::filesystem::path(out_filename))) {
+        std::cerr << out_filename << " already exists." << std::endl;
+        std::cerr << "Note: Safe mode is enabled. If you wish to overwrite the file, please disable safe mode." << std::endl;
+        return ERR_FILE_EXISTS_SAFE_MODE;
+    }
+    transpile_file(filename, out_filename);
+
+    // If recursive option is set, transpile all files in the directory
+    if (vm.count("recursive")) {
+        for (const auto& entry : fs::recursive_directory_iterator(filename.parent_path())) {
+            if (entry.path().extension() == ".pysh") {
+                // transpile_file will auto-change the extension
+                transpile_file(entry.path().string(), "");
+            }
+        }
+    }
 
     if (!vm.count("transpile")) {
         // Run the code
         const char *path = std::getenv("PATH");
-        std::filesystem::path cur_path = std::filesystem::current_path();
+        fs::path cur_path = fs::current_path();
         std::string new_path = std::string(path) + ":" + cur_path.string();
 
         if (setenv("PATH", new_path.c_str(), 1) != 0)

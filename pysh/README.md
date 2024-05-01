@@ -113,6 +113,9 @@ this.
 ### v1.4.0
 
 * Attributes are here! The first attribute supported is async mode. See the wiki for details.
+* **Breaking change:** Input files now need to use a `-i` flag. A default value of `main.pysh` is used.
+* The default output file is no longer `out.py`, and instead replaces the extension with `.py`. Do not use a `.pysh` extension for your input file! Alternatively, use safe mode (below).
+* Safe mode introduced, using `-s`. If safe mode is enabled, `pysh` will refuse to overwrite files, and throw an error instead.
 
 ### v1.3.0
 
