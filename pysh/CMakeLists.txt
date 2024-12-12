@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.13)
 project(pysh)
+
+if(POLICY CMP0167)
+  cmake_policy(SET CMP0167 NEW)
+endif()
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Weffc++ -fprofile-arcs -ftest-coverage --coverage")
 set(Boost_INCLUDE_DIR /usr/local/include/)
