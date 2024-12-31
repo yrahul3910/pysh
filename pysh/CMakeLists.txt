@@ -27,18 +27,30 @@ if(NOT Boost_FOUND)
     message(FATAL_ERROR "Could not find boost!")
 endif()
 
+add_library(
+    common
+    lib/formatter.cpp
+    lib/transpile.cpp
+)
+target_include_directories(common PUBLIC include)
+
 # Add main file of project root directory as source file
-set(SOURCE_FILES src/transpile.cpp src/formatter.cpp src/formatter.hpp src/transpile.hpp src/main.cpp src/main.cpp)
+set(PYSH_SOURCE_FILES src/main.cpp)
+set(PYSHTEST_SOURCE_FILES src/pyshtest.cpp)
 
 # Add executable target with source files listed in SOURCE_FILES variable
-add_executable(pysh ${SOURCE_FILES})
-target_link_libraries(pysh ${Boost_LIBS} Boost::regex Boost::program_options)
+add_executable(pysh ${PYSH_SOURCE_FILES})
+target_link_libraries(pysh ${Boost_LIBS} Boost::regex Boost::program_options common)
 target_include_directories(pysh PRIVATE src/)
 
-install(TARGETS pysh)
+add_executable(pyshtest ${PYSHTEST_SOURCE_FILES})
+target_link_libraries(pyshtest ${Boost_LIBS} Boost::regex Boost::program_options common)
+target_include_directories(pyshtest PRIVATE src/)
+
+install(TARGETS pysh pyshtest)
 
 # Needed for vim users
-set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 enable_testing()
 add_subdirectory(tests)

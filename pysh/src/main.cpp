@@ -1,4 +1,3 @@
-#include <fstream>
 #include <cstdlib>
 #include <iostream>
 #include <filesystem>
@@ -13,32 +12,6 @@ enum ErrorCode {
     ERR_FILE_NOT_FOUND = 2,
     ERR_FILE_EXISTS_SAFE_MODE = 3
 };
-
-void transpile_file(const std::string& filename, const std::string& out_filename, bool safe_mode=false)
-{
-    if (safe_mode && fs::exists(fs::path(out_filename))) {
-        std::cerr << out_filename << " already exists." << std::endl;
-        std::cerr << "Note: Safe mode is enabled. If you wish to overwrite the file, please disable safe mode." << std::endl;
-        exit(ERR_FILE_EXISTS_SAFE_MODE);
-    }
-
-    std::ifstream fin(filename.c_str());
-    std::ofstream fout(out_filename.c_str());
-
-    fout << "import subprocess\nimport os\nimport threading\n\n";
-    fout << "class list(list):\n"
-            "    def map(self, f):\n"
-            "        return list(map(f, self))\n\n";
-
-    std::string line;
-
-    while (std::getline(fin, line)) {
-        process_line(line, fout);
-    }
-
-    fout.flush();
-    fout.close();
-}
 
 int main(int argc, char* argv[])
 {
@@ -96,8 +69,8 @@ int main(int argc, char* argv[])
             }
         }
     } else {
-        transpile_file(filename, out_filename);
-  }
+        transpile_file(filename, out_filename, safe_mode);
+    }
 
     if (!vm.count("transpile")) {
         // Run the code

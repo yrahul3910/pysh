@@ -17,7 +17,7 @@ Check the [wiki](https://github.com/yrahul3910/pysh/wiki) for detailed documenta
 * **Inline evaluations:** These allow you to write single-line shell commands whose outputs are returned.
 
 Suppose you need to count the number of iterations a program has run in a file, and the program outputs lines starting with `iter i`. You could then do
-```
+```py
 iterations = int`grep "^iter" | wc -l`
 ```
 
@@ -25,7 +25,7 @@ The `int` *formatter* is a built-in function that specifies that the result of t
 
 Another example involves `cut`. To extract the second field from each line of a `|`-delimited file, one could use the `pysh` syntax as follows:
 
-```
+```py
 favorite_colors = list.str`cut -d '|' -f2 input.txt`
 ```
 
@@ -35,7 +35,7 @@ Here, we use the `list.str` formatter, since `cut` returns multiple lines of out
 
 The following example runs 20 jobs in slurm, waiting 3 seconds after each to ensure there was no error (which would stop the slurm job).
 
-```
+```py
 import time
 
 for i in range(20):

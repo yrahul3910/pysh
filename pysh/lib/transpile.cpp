@@ -1,13 +1,20 @@
 #include <regex>
+#include <filesystem>
 #include <string>
+#include <fstream>
 #include <vector>
-#include <sstream>
 #include <algorithm>
 #include <boost/regex.hpp>
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include "formatter.hpp"
 #include "transpile.hpp"
+
+enum TranspileErrorCodes {
+    ERR_FILE_EXISTS_SAFE_MODE = 3
+};
+
+namespace fs = std::filesystem;
 
 std::vector<std::pair<size_t, size_t>> find_quote_pairs(const std::string& str) {
     std::vector<std::pair<size_t, size_t>> pairs;
@@ -249,4 +256,30 @@ std::ostream& process_line(std::string& line, std::ostream& out)
     }
 
     return out;
+}
+
+void transpile_file(const std::string& filename, const std::string& out_filename, bool safe_mode=false)
+{
+    if (safe_mode && fs::exists(fs::path(out_filename))) {
+        std::cerr << out_filename << " already exists." << std::endl;
+        std::cerr << "Note: Safe mode is enabled. If you wish to overwrite the file, please disable safe mode." << std::endl;
+        exit(ERR_FILE_EXISTS_SAFE_MODE);
+    }
+
+    std::ifstream fin(filename.c_str());
+    std::ofstream fout(out_filename.c_str());
+
+    fout << "import subprocess\nimport os\nimport threading\n\n";
+    fout << "class list(list):\n"
+            "    def map(self, f):\n"
+            "        return list(map(f, self))\n\n";
+
+    std::string line;
+
+    while (std::getline(fin, line)) {
+        process_line(line, fout);
+    }
+
+    fout.flush();
+    fout.close();
 }
