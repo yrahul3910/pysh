@@ -32,6 +32,7 @@ add_library(
     lib/formatter.cpp
     lib/transpile.cpp
 )
+target_link_libraries(common ${Boost_LIBS} Boost::regex Boost::program_options)
 target_include_directories(common PUBLIC include)
 
 # Add main file of project root directory as source file
