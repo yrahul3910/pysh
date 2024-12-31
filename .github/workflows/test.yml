@@ -26,3 +26,6 @@ jobs:
 
     - name: Run tests
       run: cd pysh && ./run_tests.sh
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v5
